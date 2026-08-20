@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Creador de Invitaciones Digitales Profesionales</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Great+Vibes&family=Montserrat:wght@300;400;600;700&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
+  
+  <!-- html2canvas -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <style>
+    * { box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
+    body { background-color: #121826; color: #f3f4f6; margin: 0; padding: 20px; min-height: 100vh; }
+
+    .main-wrapper {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Panel Editor (Izquierda) */
+    .editor-panel {
+      flex: 1 1 400px;
+      background: #1e293b;
+      padding: 25px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .editor-panel h2 { margin-top: 0; color: #38bdf8; font-size: 20px; margin-bottom: 20px; }
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; font-size: 13px; color: #94a3b8; margin-bottom: 6px; font-weight: 600; }
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%;
+      padding: 10px 12px;
+      background: #0f172a;
+      border: 1px solid #334155;
+      color: #fff;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    .form-group input:focus, .form-group select:focus { outline: none; border-color: #38bdf8; }
+
+    .btn-action {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #0284c7, #2563eb);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 15px;
+      transition: all 0.3s ease;
+    }
+    .btn-action:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    /* Panel Vista Previa (Derecha) */
+    .preview-panel {
+      flex: 1 1 450px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Mockup de Celular / Tarjeta Invitio */
+    .phone-mockup {
+      width: 380px;
+      background: #ffffff;
+      color: #1e293b;
+      border-radius: 24px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .invitation-hero {
+      position: relative;
+      height: 250px;
+      background-size: cover;
+      background-position: center;
+      background-color: #334155;
+      display: flex;
+      align-items: flex-end;
+      padding: 20px;
+    }
+    .invitation-hero::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    }
+    .hero-title {
+      position: relative;
+      z-index: 2;
+      color: #ffffff;
+      margin: 0;
+      font-size: 28px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .invitation-body {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      text-align: center;
+    }
+
+    /* Contador */
+    .countdown-box {
+      display: flex;
+      justify-content: space-around;
+      background: #f8fafc;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+    }
+    .time-unit { display: flex; flex-direction: column; align-items: center; }
+    .time-unit span { font-weight: 700; font-size: 18px; color: #2563eb; }
+    .time-unit label { font-size: 10px; color: #64748b; text-transform: uppercase; }
+
+    /* Estilos de tipografía en la tarjeta */
+    .font-playfair { font-family: 'Playfair Display', serif; }
+    .font-vibes { font-family: 'Great Vibes', cursive; }
+    .font-cinzel { font-family: 'Cinzel', serif; }
+    .font-montserrat { font-family: 'Montserrat', sans-serif; }
+
+    /* Google Maps Iframe Container */
+    .map-container {
+      width: 100%;
+      height: 160px;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-top: 10px;
+      border: 1px solid #e2e8f0;
+    }
+    .map-container iframe { width: 100%; height: 100%; border: 0; }
+
+    .whatsapp-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background-color: #25d366;
+      color: white;
+      text-decoration: none;
+      padding: 12px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+    .whatsapp-btn:hover { background-color: #1eb857; }
+  </style>
+</head>
+<body>
+
+<div class="main-wrapper">
+  <!-- Editor -->
+  <div class="editor-panel">
+    <h2>Configurador de Invitación</h2>
+    
+    <div class="form-group">
+      <label>Estilo de Tipografía</label>
+      <select id="select-font">
+        <option value="font-playfair">Elegante (Playfair Display)</option>
+        <option value="font-vibes">Cursiva / Boda (Great Vibes)</option>
+        <option value="font-cinzel">Solemne (Cinzel)</option>
+        <option value="font-montserrat">Moderna (Montserrat)</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Portada (Imagen)</label>
+      <input type="file" id="input-image" accept="image/*">
+    </div>
+
+    <div class="form-group">
+      <label>Título del Evento / Anfitriones</label>
+      <input type="text" id="input-title" value="Camila & Sofía - XV Años">
+    </div>
+
+    <div class="form-group">
+      <label>Mensaje de Bienvenida</label>
+      <textarea id="input-message" rows="2">Queremos compartir este día tan especial con las personas que más queremos. ¡No faltes!</textarea>
+    </div>
+
+    <div class="form-group">
+      <label>Fecha del Evento (para el Contador)</label>
+      <input type="datetime-local" id="input-date-target">
+    </div>
+
+    <div class="form-group">
+      <label>Ubicación (Búsqueda para Google Maps)</label>
+      <input type="text" id="input-location" value="Hacienda De Los Morales, Mexico City">
+    </div>
+
+    <div class="form-group">
+      <label>Número de WhatsApp (Anfitrión)</label>
+      <input type="text" id="input-phone" placeholder="Ej. 525512345678" value="525512345678">
+    </div>
+
+    <button class="btn-action" onclick="downloadImage()">Descargar Tarjeta (PNG)</button>
+  </div>
+
+  <!-- Vista Previa / Tarjeta Interactiva -->
+  <div class="preview-panel">
+    <h3 style="color: #94a3b8; margin-top: 0;">Vista Previa Interactiva</h3>
+    
+    <div class="phone-mockup" id="invitation-card">
+      <div class="invitation-hero" id="card-hero">
+        <h1 class="hero-title font-playfair" id="card-title">Camila & Sofía - XV Años</h1>
+      </div>
+
+      <div class="invitation-body">
+        <p style="margin: 0; color: #64748b; font-size: 14px;" id="card-message">
+          Queremos compartir este día tan especial con las personas que más queremos. ¡No faltes!
+        </p>
+
+        <!-- Contador Regresivo -->
+        <div class="countdown-box">
+          <div class="time-unit"><span id="days">00</span><label>Días</label></div>
+          <div class="time-unit"><span id="hours">00</span><label>Horas</label></div>
+          <div class="time-unit"><span id="minutes">00</span><label>Min</label></div>
+          <div class="time-unit"><span id="seconds">00</span><label>Seg</label></div>
+        </div>
+
+        <!-- Google Maps -->
+        <div>
+          <strong style="font-size: 14px; color: #334155;">📍 Ubicación del Evento</strong>
+          <div class="map-container">
+            <iframe id="google-map" src="https://maps.google.com/maps?q=Hacienda%20De%20Los%20Morales,%20Mexico%20City&t=&z=13&ie=UTF8&iwloc=&output=embed"></iframe>
+          </div>
+        </div>
+
+        <!-- Confirmación de Asistencia -->
+        <a href="#" id="btn-whatsapp" target="_blank" class="whatsapp-btn">
+          Confirmar Asistencia por WhatsApp
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Inicializar fecha objetivo por defecto (30 días en el futuro)
+  const defaultDate = new Date();
+  defaultDate.setDate(defaultDate.getDate() + 30);
+  document.getElementById('input-date-target').value = defaultDate.toISOString().slice(0, 16);
+
+  // Manipulación de Tipografía
+  document.getElementById('select-font').addEventListener('change', (e) => {
+    const title = document.getElementById('card-title');
+    title.className = 'hero-title ' + e.target.value;
+  });
+
+  // Eventos de Formulario en Tiempo Real
+  document.getElementById('input-title').addEventListener('input', (e) => {
+    document.getElementById('card-title').innerText = e.target.value || 'Título del Evento';
+    updateWhatsAppLink();
+  });
+
+  document.getElementById('input-message').addEventListener('input', (e) => {
+    document.getElementById('card-message').innerText = e.target.value;
+  });
+
+  // Cambio de Imagen de Portada
+  document.getElementById('input-image').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        document.getElementById('card-hero').style.backgroundImage = `url('${event.target.result}')`;
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  // Google Maps Dinámico
+  document.getElementById('input-location').addEventListener('change', (e) => {
+    const query = encodeURIComponent(e.target.value);
+    const mapIframe = document.getElementById('google-map');
+    mapIframe.src = `https://maps.google.com/maps?q=${query}&t=&z=13&ie=UTF8&iwloc=&output=embed`;
+  });
+
+  // Lógica del Contador Regresivo
+  function updateCountdown() {
+    const targetDate = new Date(document.getElementById('input-date-target').value).getTime();
+    const now = new Date().getTime();
+    const difference = targetDate - now;
+
+    if (difference > 0) {
+      const d = Math.floor(difference / (1000 * 60 * 60 * 24));
+      const h = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const m = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+      const s = Math.floor((difference % (1000 * 60)) / 1000);
+
+      document.getElementById('days').innerText = d < 10 ? '0' + d : d;
+      document.getElementById('hours').innerText = h < 10 ? '0' + h : h;
+      document.getElementById('minutes').innerText = m < 10 ? '0' + m : m;
+      document.getElementById('seconds').innerText = s < 10 ? '0' + s : s;
+    } else {
+      document.getElementById('days').innerText = '00';
+      document.getElementById('hours').innerText = '00';
+      document.getElementById('minutes').innerText = '00';
+      document.getElementById('seconds').innerText = '00';
+    }
+  }
+
+  setInterval(updateCountdown, 1000);
+  document.getElementById('input-date-target').addEventListener('change', updateCountdown);
+
+  // Link de Confirmación por WhatsApp
+  function updateWhatsAppLink() {
+    const phone = document.getElementById('input-phone').value.replace(/\D/g, '');
+    const title = document.getElementById('input-title').value;
+    const text = encodeURIComponent(`¡Hola! Confirmo mi asistencia al evento: *${title}*.`);
+    
+    document.getElementById('btn-whatsapp').href = `https://wa.me/${phone}?text=${text}`;
+  }
+
+  document.getElementById('input-phone').addEventListener('input', updateWhatsAppLink);
+  updateWhatsAppLink();
+
+  // Función de Descarga de Imagen
+  function downloadImage() {
+    const card = document.getElementById('invitation-card');
+    html2canvas(card, { scale: 2, useCORS: true }).then(canvas => {
+      const a = document.createElement('a');
+      a.download = 'invitacion-interactiva.png';
+      a.href = canvas.toDataURL('image/png');
+      a.click();
+    });
+  }
+</script>
+
+</body>
+</html>
