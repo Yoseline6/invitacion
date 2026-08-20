@@ -59,10 +59,11 @@
       border-radius: 8px;
       font-weight: 700;
       cursor: pointer;
-      margin-top: 15px;
+      margin-top: 10px;
       transition: all 0.3s ease;
     }
     .btn-action:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-share { background: linear-gradient(135deg, #059669, #10b981); }
 
     /* Panel Vista Previa (Derecha) */
     .preview-panel {
@@ -72,7 +73,7 @@
       align-items: center;
     }
 
-    /* Mockup de Celular / Tarjeta Invitio */
+    /* Mockup de Celular / Tarjeta Invitación */
     .phone-mockup {
       width: 380px;
       background: #ffffff;
@@ -137,7 +138,7 @@
     .font-cinzel { font-family: 'Cinzel', serif; }
     .font-montserrat { font-family: 'Montserrat', sans-serif; }
 
-    /* Google Maps Iframe Container */
+    /* Google Maps Container */
     .map-container {
       width: 100%;
       height: 160px;
@@ -169,7 +170,7 @@
 
 <div class="main-wrapper">
   <!-- Editor -->
-  <div class="editor-panel">
+  <div class="editor-panel" id="editor-panel">
     <h2>Configurador de Invitación</h2>
     
     <div class="form-group">
@@ -208,16 +209,18 @@
     </div>
 
     <div class="form-group">
-      <label>Número de WhatsApp (Anfitrión)</label>
+      <label>Número de WhatsApp (Anfitrión con lada)</label>
       <input type="text" id="input-phone" placeholder="Ej. 525512345678" value="525512345678">
     </div>
 
-    <button class="btn-action" onclick="downloadImage()">Descargar Tarjeta (PNG)</button>
+    <!-- Botones de Acción -->
+    <button class="btn-action btn-share" onclick="generateShareableLink()">🔗 Copiar Enlace para Compartir</button>
+    <button class="btn-action" onclick="downloadImage()">🖼️ Descargar Tarjeta (PNG)</button>
   </div>
 
   <!-- Vista Previa / Tarjeta Interactiva -->
-  <div class="preview-panel">
-    <h3 style="color: #94a3b8; margin-top: 0;">Vista Previa Interactiva</h3>
+  <div class="preview-panel" id="preview-panel">
+    <h3 style="color: #94a3b8; margin-top: 0;" id="preview-title">Vista Previa Interactiva</h3>
     
     <div class="phone-mockup" id="invitation-card">
       <div class="invitation-hero" id="card-hero">
@@ -334,7 +337,7 @@
   document.getElementById('input-phone').addEventListener('input', updateWhatsAppLink);
   updateWhatsAppLink();
 
-  // Función de Descarga de Imagen
+  // Función para Descargar Imagen PNG
   function downloadImage() {
     const card = document.getElementById('invitation-card');
     html2canvas(card, { scale: 2, useCORS: true }).then(canvas => {
@@ -344,6 +347,68 @@
       a.click();
     });
   }
+
+  // Generar Enlace Personalizado para Compartir
+  function generateShareableLink() {
+    const params = new URLSearchParams({
+      title: document.getElementById('input-title').value,
+      msg: document.getElementById('input-message').value,
+      date: document.getElementById('input-date-target').value,
+      loc: document.getElementById('input-location').value,
+      phone: document.getElementById('input-phone').value,
+      font: document.getElementById('select-font').value
+    });
+
+    const fullUrl = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(fullUrl).then(() => {
+        alert("¡Enlace copiado al portapapeles!\n\nYa puedes pegarlo en WhatsApp o enviarlo a tus invitados.");
+      });
+    } else {
+      prompt("Copia este enlace para enviarlo:", fullUrl);
+    }
+  }
+
+  // Modo Vista Invitado: Detectar datos en la URL al cargar
+  window.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+
+    if (urlParams.has('title')) {
+      // Ocultar editor y adaptar vista para invitados
+      document.getElementById('editor-panel').style.display = 'none';
+      document.getElementById('preview-title').style.display = 'none';
+      document.querySelector('.main-wrapper').style.justifyContent = 'center';
+
+      // Cargar valores desde la URL
+      const title = urlParams.get('title');
+      const msg = urlParams.get('msg');
+      const date = urlParams.get('date');
+      const loc = urlParams.get('loc');
+      const phone = urlParams.get('phone');
+      const font = urlParams.get('font') || 'font-playfair';
+
+      document.getElementById('card-title').innerText = title;
+      document.getElementById('card-title').className = 'hero-title ' + font;
+      document.getElementById('card-message').innerText = msg;
+
+      if (loc) {
+        const query = encodeURIComponent(loc);
+        document.getElementById('google-map').src = `https://maps.google.com/maps?q=${query}&t=&z=13&ie=UTF8&iwloc=&output=embed`;
+      }
+
+      if (date) {
+        document.getElementById('input-date-target').value = date;
+        updateCountdown();
+      }
+
+      if (phone) {
+        document.getElementById('input-phone').value = phone;
+        document.getElementById('input-title').value = title;
+        updateWhatsAppLink();
+      }
+    }
+  });
 </script>
 
 </body>
